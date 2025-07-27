@@ -264,6 +264,12 @@ class ReActAgent:
         }
 
         return os_map.get(platform.system(), "Unknown")
+        
+# react_agent.py
+def react_agent_process(user_input: str) -> str:
+    # Simulate intelligent response
+    return f"你说的是：{user_input}，这是我根据你的语音做出的回应。"
+
 
 
 def read_file(file_path):
@@ -286,17 +292,19 @@ def run_terminal_command(command):
 @click.command()
 @click.argument('project_directory',
                 type=click.Path(exists=True, file_okay=False, dir_okay=True))
-def main(project_directory):
+@click.argument('task', required=False)  # Make task optional
+def main(project_directory, task):
     project_dir = os.path.abspath(project_directory)
 
     tools = [read_file, write_to_file, run_terminal_command]
     model_name=os.getenv("TOOL_LLM_NAME", "mistral:latest")
     agent = ReActAgent(tools=tools, model=model_name, project_directory=project_dir)
 
-    task = input("请输入任务：")
-
+    # If task is provided via command line, use it; otherwise prompt for input
+    if not task:
+        task = input("请输入任务：")
     final_answer = agent.run(task)
-
+    
     print(f"\n\n✅ Final Answer：{final_answer}")
 
 if __name__ == "__main__":
